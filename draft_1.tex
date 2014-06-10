@@ -1,0 +1,91 @@
+\documentclass[a4paper,10pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{fontenc}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\date{\today}
+
+\usepackage{Sweave}
+\begin{document}
+\input{draft_1-concordance}
+
+
+% Title Page
+\begin{titlepage}
+\begin{center}
+% Title
+
+\textsc{\Large SPM4500: Fundamentals of Data Analytics - Final Assignment Report }\\[6cm]
+
+{ \bfseries \Large Performance of various Data Analytics Techniques on Kaggle's Problem Set `Titanic: Machine Learning from Disaster' \\[6cm] }
+
+% Author and supervisor
+\begin{minipage}{0.6\textwidth}
+\emph{Authors:}\\
+\begin{flushleft} \large
+Nidhi \textsc{Singh}\\
+4242246 \\
+n.singh-2@student.tudelft.nl\\
+MSc. Computer Science\\
+\end{flushleft}
+
+\begin{flushright} \large
+K. \textsc{Chaitanya Akundi}\\
+4242246 \\
+k.c.akundi@student.tudelft.nl\\
+MSc. Computer Science\\
+\end{flushright}
+
+\end{minipage}
+
+\end{center}
+\end{titlepage}
+
+\listoffigures
+
+\chapter*{Titanic Data Set}
+\section*{Problem Description}
+For our final assignment, we have taken up a challenge from Kaggle `Predict survival on the Titanic'. The dataset includes details of people who travelled on RMS Titanic which sank in 1912 killing 1502 out of 2224 passengers.
+The aim of the Kaggle challenge is to complete the analysis of what sorts of people were likely to survive. In order to do so, we will apply different predictive models to the dataset and will finally evaluate their performance against each other. Kaggle also supports Leaderboards which evaluate the submitted results, but since this evaluation is based on only 50\% of the test data, it makes sense to do performance evaluation of all the models.
+
+\ Since we are given both training and test data set, this problem's predictive models will fall under the umbrella of Supervised Learning Algorithms. Also we have to decide whether a passenger survived or not, this makes it a classic Classification problem.
+
+\section*{Data Exploration}
+Before diving deep into prediction making on test data, we will explore the dataset. We are given two sets of data, training and test.The given training data set has following 11 variables:
+\begin{itemize}
+  \item PassengerId - Unique generated Id for each passenger
+  \item Survived - Survival(0 = No; 1 = Yes)
+  \item Pclass - Passenger Class (1 = 1st; 2 = 2nd; 3 = 3rd)
+  \item Name - Name of the person
+  \item sex - Sex 
+  \item Age - Age
+  \item Sibsp - Number of Siblings/Spouses Aboard
+  \item Parch - Number of Parents/Children Aboard
+  \item Ticket - Ticket Number
+  \item Fare - Passenger Fare
+  \item Cabin - Cabin in the ship
+  \item Embarked - Port of Embarkation (C = Cherbourg; Q = Queenstown; S = Southampton)
+  
+\end{itemize}
+
+Let us start by looking at the type of these variables
+\begin{Schunk}
+\begin{Sinput}
+> train_csv <- read.csv('train.csv')
+> head(train_csv,n=2)
+\end{Sinput}
+\begin{Soutput}
+  PassengerId Survived Pclass                                                Name    Sex Age SibSp Parch    Ticket    Fare Cabin
+1           1        0      3                             Braund, Mr. Owen Harris   male  22     1     0 A/5 21171  7.2500      
+2           2        1      1 Cumings, Mrs. John Bradley (Florence Briggs Thayer) female  38     1     0  PC 17599 71.2833   C85
+  Embarked
+1        S
+2        C
+\end{Soutput}
+\end{Schunk}
+
+\section*{Feature Engineering}
+
+\end{document}
