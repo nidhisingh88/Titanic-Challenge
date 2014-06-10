@@ -4,12 +4,14 @@
 \usepackage{graphicx}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
+\usepackage{caption}
+\usepackage{subcaption}
 
 \date{\today}
 
 \usepackage{Sweave}
 \begin{document}
-\input{draft_1-concordance}
+\input{DA-concordance}
 
 
 % Title Page
@@ -45,14 +47,14 @@ MSc. Computer Science\\
 
 \listoffigures
 
-\chapter*{Titanic Data Set}
-\section*{Problem Description}
+\chapter{Titanic Data Set}
+\section{Problem Description}
 For our final assignment, we have taken up a challenge from Kaggle `Predict survival on the Titanic'. The dataset includes details of people who travelled on RMS Titanic which sank in 1912 killing 1502 out of 2224 passengers.
 The aim of the Kaggle challenge is to complete the analysis of what sorts of people were likely to survive. In order to do so, we will apply different predictive models to the dataset and will finally evaluate their performance against each other. Kaggle also supports Leaderboards which evaluate the submitted results, but since this evaluation is based on only 50\% of the test data, it makes sense to do performance evaluation of all the models.
 
 \ Since we are given both training and test data set, this problem's predictive models will fall under the umbrella of Supervised Learning Algorithms. Also we have to decide whether a passenger survived or not, this makes it a classic Classification problem.
 
-\section*{Data Exploration}
+\section{Data Exploration}
 Before diving deep into prediction making on test data, we will explore the dataset. We are given two sets of data, training (data containing attributes and known outcomes [survived or perished] for a subset of the passengers) and test (data containing attributes without outcomes for a subset of passengers).The given training data set has 891 observations of following 12 variables:
 \begin{itemize}
   \item PassengerId - Unique generated Id for each passenger
@@ -103,24 +105,72 @@ Here Factor refers to categorical data, since all the names are unique, we have 
 \end{Schunk}
 This shows that 61.6\% of the passengers perished and only 38.3\% survived.
 Running the same code for Sex, we find 35.2\% females and 64.7\% in the training data set.
+
 \begin{Schunk}
 \begin{Sinput}
 > summary(train_csv$Age)
 \end{Sinput}
 \begin{Soutput}
-   Min. 1st Qu.  Median    Mean 3rd Qu. 
-   0.42   20.12   28.00   29.70   38.00 
-   Max.    NA's 
-  80.00     177 
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+   0.42   20.12   28.00   29.70   38.00   80.00     177 
 \end{Soutput}
 \end{Schunk}
 Summary results on Age shows that this variable is missing for 177 passengers and the minimum age is 0.42 or 5 months and maximum is 80, while 90\% of the passengers were below 50.
-\section*{Feature Engineering}
+\begin{Schunk}
+\begin{Sinput}
+> prop.table(table(train_csv$Pclass))
+\end{Sinput}
+\begin{Soutput}
+        1         2         3 
+0.2424242 0.2065095 0.5510662 
+\end{Soutput}
+\end{Schunk}
+More than 55\% passengers were travelling in third class. It will be worthwhile to see the age and sex of people in each class. 
+
+
+\begin{figure}[h]
+\centering
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{DA-ClassBySex}
+    \caption{Passenger Class by Gender.} \label{ClassBySex}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{DA-ClassByAge}
+    \caption{Passenger Class by Age.} \label{ClassByAge}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{DA-ClassByFare}
+    \caption{Passenger Class by Fare.} \label{ClassByFare}
+  \end{subfigure}
+  \caption{Passenger class by Sex, Age and Fare}\label{Class}
+\end{figure}
+We see in Figure\ref{Class} that third class has mostly males, since third class cabins were at the bottom of the ship this might be one of the reasons that most of the males could not survive. Also passengers in third class were younger with median below 25.With just one outlier above \$500 for first class ticket fare, fare is below \$100.
+
+
+\begin{figure}[h]
+\centering
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{DA-Sibsp}
+    \end{subfigure}
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{DA-Parch}
+    \end{subfigure}
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{DA-Embark}
+  \end{subfigure}
+  \caption{Frequency of Sibsp, Parch and Embarkment}\label{Var}
+\end{figure}
+We now look at other variables to see if they can have some influence on predictions. From Figure \ref{Var} we can see that  most passengers travelled alone and started their journey from Southampton.
+
+\ Other varibales `Ticket' and `Cabin' do not tell much as they have unique values, and are un-related to other variables.
+
+
+\section{Feature Engineering}
 
 \chapter{Prediction Models}
 Since the `Predict survival on the Titanic' challenge is a classification problem, we will start with ANOVA and Linear Classifiers and then go further with methods like Descision trees, Random Forests and Ensembles of classifiers. In the following sections we will explore each model in detail and will also report its evaluation on Kaggle.
 
-\section{ANOVA}
+\section{Logistic Regression}
 
 
 \end{document}
