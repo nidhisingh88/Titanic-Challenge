@@ -35,7 +35,7 @@ MSc. Computer Science\\
 
 \begin{flushright} \large
 K. \textsc{Chaitanya Akundi}\\
-4242246 \\
+ \\
 k.c.akundi@student.tudelft.nl\\
 MSc. Computer Science\\
 \end{flushright}
@@ -130,15 +130,15 @@ More than 55\% passengers were travelling in third class. It will be worthwhile 
 
 \begin{figure}[h]
 \centering
-  \begin{subfigure}[b]{0.4\textwidth}
+  \begin{subfigure}[b]{0.3\textwidth}
     \includegraphics[width=\textwidth]{DA-ClassBySex}
     \caption{Passenger Class by Gender.} \label{ClassBySex}
   \end{subfigure}
-  \begin{subfigure}[b]{0.4\textwidth}
+  \begin{subfigure}[b]{0.3\textwidth}
     \includegraphics[width=\textwidth]{DA-ClassByAge}
     \caption{Passenger Class by Age.} \label{ClassByAge}
   \end{subfigure}
-  \begin{subfigure}[b]{0.4\textwidth}
+  \begin{subfigure}[b]{0.3\textwidth}
     \includegraphics[width=\textwidth]{DA-ClassByFare}
     \caption{Passenger Class by Fare.} \label{ClassByFare}
   \end{subfigure}
@@ -149,13 +149,13 @@ We see in Figure\ref{Class} that third class has mostly males, since third class
 
 \begin{figure}[h]
 \centering
-  \begin{subfigure}[b]{0.4\textwidth}
+  \begin{subfigure}[b]{0.3\textwidth}
     \includegraphics[width=\textwidth]{DA-Sibsp}
     \end{subfigure}
-  \begin{subfigure}[b]{0.4\textwidth}
+  \begin{subfigure}[b]{0.3\textwidth}
     \includegraphics[width=\textwidth]{DA-Parch}
     \end{subfigure}
-  \begin{subfigure}[b]{0.4\textwidth}
+  \begin{subfigure}[b]{0.3\textwidth}
     \includegraphics[width=\textwidth]{DA-Embark}
   \end{subfigure}
   \caption{Frequency of Sibsp, Parch and Embarkment}\label{Var}
@@ -163,12 +163,47 @@ We see in Figure\ref{Class} that third class has mostly males, since third class
 We now look at other variables to see if they can have some influence on predictions. From Figure \ref{Var} we can see that  most passengers travelled alone and started their journey from Southampton.
 
 \ Other varibales `Ticket' and `Cabin' do not tell much as they have unique values, and are un-related to other variables.
+\subsection{Survived variable with other variables}
+Till now we looked at the variables and their values and frequencies and tried to get an initial understanding of the data.
+Since we have to predict the `Survived' variable for the test set, in this section we will look at the relation between `Survived' variable and other variables.
 
+As we can see from Figure \ref{Surv} age and fare doesnt seem to give much information about the survived variable, moreover most of the passengers were from Southampton so Place of Embarkment doesn't seem to play much role too.
+
+But from Figure \ref{SurvCSE} we can find some interesting facts, people in 1st class outnumbered the people from 3rd class in survival rate.So there was a clear preference for elite poeple. From the second plot in Figure\ref{SurvCSE} we can see another preference was for females, we would like to believe that there was preference for children but this is not yet evident from our data. The last plot in Figure \ref{SurvCSE} shows that surely there was a clear bias for females in 1st and 2nd class compared to males. This is a clear indicator that `Sex' variable is hihgly important for our analysis with maybe `Pclass' coming next.
+\begin{figure}[h]
+\centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{DA-SurvAge}
+    \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{DA-SurvFare}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{DA-SurvEmb}
+  \end{subfigure}
+  \caption{Passengers Survived by Age, Fare and Place of Embarkment}\label{Surv}
+\end{figure}
+
+
+
+\begin{figure}[h]
+\centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{DA-SurvClass}
+    \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{DA-SurvSex}
+    \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{DA-SurvSC}
+  \end{subfigure}
+  \caption{Passengers survived by Class and Gender}\label{SurvCSE}
+\end{figure}
 
 \section{Feature Engineering}
-
+There are few variables which have `NA' and missing values, before we run our predition models we need to get rid of these
 \chapter{Prediction Models}
-Since the `Predict survival on the Titanic' challenge is a classification problem, we will start with ANOVA and Linear Classifiers and then go further with methods like Descision trees, Random Forests and Ensembles of classifiers. In the following sections we will explore each model in detail and will also report its evaluation on Kaggle.
+Since the `Predict survival on the Titanic' challenge is a classification problem, we will start with Linear Classifiers and then go further with methods like Descision trees, Random Forests and Ensembles of classifiers. In the following sections we will explore each model in detail and will also report its evaluation on Kaggle.
 
 \section{Logistic Regression}
 
