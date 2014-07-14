@@ -1,8 +1,12 @@
 .Rproj.user
+/FinalReport/cache/*
+/FinalReport/figure/*
 .Rhistory
-.RData
+*.RData
 *.log
 *.lof
 *.gz
 *.Rproj
 *.csv
+DA*.pdf
+

@@ -1,3 +1,5 @@
+
+
 \documentclass[a4paper,10pt]{report}\usepackage[]{graphicx}\usepackage[]{color}
 %% maxwidth is the original width if it is less than linewidth
 %% otherwise use linewidth (to make sure the graphics do not exceed the margin)
@@ -51,6 +53,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{fontenc}
 \usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage[all]{hypcap}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \usepackage{caption}
@@ -59,7 +63,10 @@
 \date{\today}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
-\SweaveOpts{concordance=TRUE,width=3.5,height=3.5,prefix.string=DA}
+
+
+
+
 
 
 % Title Page
@@ -83,7 +90,6 @@ MSc. Computer Science\\
 
 \begin{flushright} \large
 K. \textsc{Chaitanya Akundi}\\
- \\
 k.c.akundi@student.tudelft.nl\\
 MSc. Computer Science\\
 \end{flushright}
@@ -120,12 +126,7 @@ Before diving deep into prediction making on test data, we will explore the data
   
 \end{itemize}
 
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: grid}}\end{kframe}
-\end{knitrout}
 Let us start by looking at the type of these variables
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -282,7 +283,54 @@ There are few variables which have `NA' and missing values, before we run our pr
 Since the `Predict survival on the Titanic' challenge is a classification problem, we will start with Linear Classifiers and then go further with methods like Decision trees and Ensembles of classifiers. In the following sections we will explore each model in detail and will also report its evaluation on Kaggle.
 
 \section{Logistic Regression}
-Logistic Regression is a classical Classification algorithm. R's \emph{glm} function is used to fit generalized linear models, the specific model can be specified by \emph{family} variable, which in this case is binomial with link logit.
+Logistic Regression is a classical Classification algorithm. R's \emph{glm} function is used to fit generalized linear models, With \emph{family} variable set to "binomial", glm( ) produces a logistic regression.
+
+We will run our first regression model with basic features provided within the dataset and can look at the results by calling summary on this model.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{logit.m1} \hlkwb{<-} \hlkwd{glm}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{SibSp} \hlopt{+} \hlstd{Parch} \hlopt{+} \hlstd{Fare} \hlopt{+} \hlstd{Embarked,}
+                \hlkwc{data} \hlstd{= train.batch,}
+                \hlkwc{family}\hlstd{=}\hlstr{"binomial"}\hlstd{)}
+\hlkwd{summary}\hlstd{(logit.m1)}
+\end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## glm(formula = Survived ~ Pclass + Sex + Age + SibSp + Parch + 
+##     Fare + Embarked, family = "binomial", data = train.batch)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -2.639  -0.617  -0.446   0.666   2.424  
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)  1.80e+01   6.07e+02    0.03    0.976    
+## Pclass      -1.10e+00   1.61e-01   -6.81  1.0e-11 ***
+## Sexmale     -2.65e+00   2.23e-01  -11.93  < 2e-16 ***
+## Age         -4.47e-02   8.88e-03   -5.04  4.7e-07 ***
+## SibSp       -2.55e-01   1.20e-01   -2.13    0.033 *  
+## Parch       -7.07e-02   1.30e-01   -0.54    0.588    
+## Fare         3.04e-05   2.83e-03    0.01    0.991    
+## EmbarkedC   -1.24e+01   6.07e+02   -0.02    0.984    
+## EmbarkedQ   -1.26e+01   6.07e+02   -0.02    0.983    
+## EmbarkedS   -1.29e+01   6.07e+02   -0.02    0.983    
+## ---
+## Signif. codes:  
+## 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 957.90  on 712  degrees of freedom
+## Residual deviance: 646.84  on 703  degrees of freedom
+## AIC: 666.8
+## 
+## Number of Fisher Scoring iterations: 13
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
 
 \section{Decision Trees}
 Decision tree algorithms work by repeatedly splitting the dataset into subsets based on a particular attribute value. This process is recursively carried out until further splitting does not add any value to the predictions. This is a greedy algorithm, which means that decisions with the highest immediate value are given preference.
@@ -291,12 +339,155 @@ We applied recursive partitioning on the Titanic dataset using the Decision Tree
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{rpart}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{Fare} \hlopt{+} \hlstd{Embarked} \hlopt{+} \hlstd{Title} \hlopt{+} \hlstd{FamilyID2,}
-\hlkwc{data} \hlstd{= train.batch,} \hlkwc{method} \hlstd{=} \hlstr{"class"}\hlstd{,} \hlkwc{control} \hlstd{=} \hlkwd{rpart.control}\hlstd{(}\hlkwc{minsplit} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cp} \hlstd{=} \hlnum{0.001}\hlstd{))}
+\hlstd{dt.1} \hlkwb{<-} \hlkwd{rpart}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{Fare} \hlopt{+} \hlstd{Embarked} \hlopt{+}
+    \hlstd{Title} \hlopt{+} \hlstd{FamilyID2,} \hlkwc{data} \hlstd{= train.batch,} \hlkwc{method} \hlstd{=} \hlstr{"class"}\hlstd{,}
+    \hlkwc{control} \hlstd{=} \hlkwd{rpart.control}\hlstd{(}\hlkwc{minsplit} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cp} \hlstd{=} \hlnum{0.001}\hlstd{))}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: object 'train.batch' not found}}\end{kframe}
+\end{kframe}
 \end{knitrout}
+
+
+\begin{table}
+    \begin{tabular}{|l|l|l|}
+    \hline
+    ~          & Actual Value  & ~  \\ \hline
+    Prediction & 0             & 1  \\ \hline
+    0          & 115           & 17 \\
+    1          & 7             & 39 \\ \hline
+    \end{tabular}
+    \caption{Confusion Matrix - Initial Decision Tree}
+\end{table}
+
+\begin{table}
+    \begin{tabular}{|l|l|}
+    \hline
+    Statistic              & Value           \\ \hline
+    Accuracy               & 0.8652          \\
+    Accuracy with unseen data(Kaggle)               & 0.78469 \\ 
+    95\% CI                & (0.8061, 0.9117) \\
+    No Information Rate    & 0.6854          \\
+    P-Value [Acc \textgreater NIR]    &  2.329e-08      \\
+    Kappa                  &  0.6715         \\
+    Mcnemar's Test P-Value & 0.06619          \\
+    Sensitivity            &  0.9426         \\
+    Specificity            & 0.6964          \\ \hline
+    \end{tabular}
+    \caption{Evaluation - Initial Decision Tree}
+\end{table}
+
+\subsection{}
+In the second run, we added the engineered features Title and FamilyID2 to the estimation, while removing Age, SibSp and Parch which are already composed in Title and FamilyID2.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{dt.2} \hlkwb{<-} \hlkwd{rpart}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Fare} \hlopt{+} \hlstd{Embarked} \hlopt{+} \hlstd{Title} \hlopt{+} \hlstd{FamilyID2,}
+    \hlkwc{data} \hlstd{= train.batch,} \hlkwc{method} \hlstd{=} \hlstr{"class"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+This resulted in marginal gains in accuracy and sensitivity of the model, thus giving better results on unseen data.
+
+\begin{table}
+    \begin{tabular}{|l|l|l|}
+    \hline
+    ~          & Actual Value  & ~  \\ \hline
+    Prediction & 0             & 1  \\ \hline
+    0          & 117           & 18 \\
+    1          & 5             & 38 \\ \hline
+    \end{tabular}
+    \caption{Confusion Matrix - Engineered Features}
+\end{table}
+
+\begin{table}
+    \begin{tabular}{|l|l|}
+    \hline
+    Statistic              & Value           \\ \hline
+    Accuracy               & 0.8708          \\
+    Accuracy with unseen data(Kaggle)               & 0.79426 \\ 
+    95\% CI                & (0.8124, 0.9163) \\
+    No Information Rate    & 0.6854          \\
+    P-Value [Acc \textgreater NIR]    &  7.677e-09      \\
+    Kappa                  &  0.6803         \\
+    Mcnemar's Test P-Value & 0.01234          \\
+    Sensitivity            &  0.9590         \\
+    Specificity            & 0.6786          \\ \hline
+    \end{tabular}
+    \caption{Evaluation - Engineered Features}
+\end{table}
+\subsection{}
+In the third run, we added control parameters which specified \emph{minsplit} as 2 and \emph{cp} as 0. This allowed unbounded growth for the tree, and resulted in a complex structure with large a number of branches.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{fit} \hlkwb{<-} \hlkwd{rpart}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{Fare} \hlopt{+} \hlstd{Embarked} \hlopt{+} \hlstd{Title} \hlopt{+}
+    \hlstd{FamilyID2,} \hlkwc{data} \hlstd{= train.batch,} \hlkwc{method} \hlstd{=} \hlstr{"class"}\hlstd{,} \hlkwc{control} \hlstd{=} \hlkwd{rpart.control}\hlstd{(}\hlkwc{minsplit} \hlstd{=} \hlnum{2}\hlstd{,}
+    \hlkwc{cp} \hlstd{=} \hlnum{0}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+The results were very accurate on the training data. However, the model performed poorly with the test data. From this, we could conclude that the model is overfitting to a high degree. 
+ \begin{table}
+    \begin{tabular}{|l|l|l|}
+    \hline
+    ~          & Actual Value  & ~  \\ \hline
+    Prediction & 0             & 1  \\ \hline
+    0          & 122           & 2 \\
+    1          & 0             & 54 \\ \hline
+    \end{tabular}
+    \caption{Confusion Matrix - Unbounded Growth Tree}
+\end{table}
+
+\begin{table}
+    \begin{tabular}{|l|l|}
+    \hline
+    Statistic              & Value           \\ \hline
+    Accuracy               & 0.9888          \\
+    Accuracy with unseen data(Kaggle)               & 0.74163 \\ 
+    95\% CI                & (0.96, 0.9986) \\
+    No Information Rate    & 0.6854          \\
+    P-Value [Acc \textgreater NIR]    &  \textless2e-16      \\
+    Kappa                  &  0.9737         \\
+    Mcnemar's Test P-Value & 0.4795          \\
+    Sensitivity            &  1.0000         \\
+    Specificity            & 0.9643          \\ \hline
+    \end{tabular}
+    \caption{Evaluation - Unbounded Growth Tree}
+\end{table}
+
+
+\section{Support Vector Machines}
+
+Support Vector Machine (SVM) algorithms perform classification by representing the given data as points in space, with a clear plane of separation between the different classes to which the points belong. SVMs use the 'kernel trick' to work with high-dimensional data without ever having to map the points in such spaces. 
+In R, the \texttt{e1071} and \texttt{kernlab} packages offer methods for creating SVM models. We used the \texttt{kernlab} package to generate our SVM models.
+
+\subsection{}
+Initially, the algorithm was run in linear classification mode, using the features that were already present in the given dataset. The results are as follows.
+\begin{table}
+    \begin{tabular}{|l|l|l|}
+    \hline
+    ~          & Actual Value  & ~  \\ \hline
+    Prediction & 0             & 1  \\ \hline
+    0          & 119           & 17 \\
+    1          & 3             & 39 \\ \hline
+    \end{tabular}
+    \caption{Confusion Matrix - Linear SVM}
+\end{table}
+
+\begin{table}
+    \begin{tabular}{|l|l|}
+    \hline
+    Statistic              & Value           \\ \hline
+    Accuracy               & 0.8876          \\
+    Accuracy with unseen data(Kaggle)               & 0.62679 \\ 
+    95\% CI                & (0.8318, 0.93) \\
+    No Information Rate    & 0.6854          \\
+    P-Value [Acc \textgreater NIR]    &  2.044e-10      \\
+    Kappa                  &  0.7206         \\
+    Mcnemar's Test P-Value & 0.00365          \\
+    Sensitivity            &  0.9754         \\
+    Specificity            & 0.6964          \\ \hline
+    \end{tabular}
+    \caption{Evaluation - Linear SVM}
+\end{table}
 
 \end{document}
