@@ -10,6 +10,7 @@
 \pagestyle{fancy}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{amsmath}
 
 \date{\today}
 
@@ -235,9 +236,20 @@ There are few variables which have `NA' and missing values, before we run our pr
 Since the `Predict survival on the Titanic' challenge is a classification problem, we will start with Linear Classifiers and then go further with methods like Decision trees and Ensembles of classifiers. In the following sections we will explore each model in detail and will also report its evaluation on Kaggle.
 
 \section{Logistic Regression}
-Logistic Regression is a classical Classification algorithm. R's \emph{glm} function is used to fit generalized linear models, With \emph{family} variable set to "binomial", glm( ) produces a logistic regression.
+Logistic Regression is a classical Classification algorithm. R's \emph{glm} function is used to fit generalized linear models, With \emph{family} variable set to "binomial", glm( ) produces a logistic regression.The output of a linear regression can be transformed to a logit functions as follows:
 
-We will run our first regression model with basic features provided within the dataset and can look at the results by calling summary on this model.
+$$
+logit{p} = \log{o} = \log{p/1-p} = \beta_{0} + \beta_{1}x_{1} +\beta_{2}x_{2} + ...+\beta_{k}x_{k}
+$$
+
+Exponentiating this we get,
+$$ \exp^{logit{p}} = \exp^{\beta_{0}} \exp^{\beta_{1}x_{1}} \exp^{\beta_{2}x_{2}}... \exp^{\beta_{k}x_{k}} $$
+rewriting we get,
+$$ o = p/1-p = \exp^{\beta_{0}} \exp^{\beta_{1}x_{1}} \exp^{\beta_{2}x_{2}}... \exp^{\beta_{k}x_{k}} $$
+Here \emph{o} represents the \emph{odds}. From this we can say that if we know that a certain fact is true of a data point, then that will produce a constant change in the odds of the outcome.
+
+We will run our first regression model with basic features provided within the dataset and can look at the results by calling summary on this model.Summary gives the value of \emph{estimated coefficients alongwith their standard errors and p-value} of each input variable. 
+
 <<eval=TRUE>>=
 logit.m1 <- glm(Survived ~ Pclass + Sex + Age + SibSp + 
                   Parch + Fare + Embarked, 
@@ -246,6 +258,35 @@ logit.m1 <- glm(Survived ~ Pclass + Sex + Age + SibSp +
 summary(logit.m1)
 @
 
+Logistic Regression uses the deviance test to estimate the goodness of the model. Its approach is based on estimating two models, it assumes that one excludes the hypothesized effects to be null, while to be included in 
+the other. For each model, a deviance statistic, equal to -2 ln L for that model, is computed, which in this case is
+\emph{947.99(Null model) and 641.48(estimated model)}. The deviance can be regarded as a measure of lack of fit between 
+model and data. In general, the larger the deviance, the poorer the fit to the data. In our first iteration with basic
+features we can see reduction of \emph{306.51} in deviance. The difference between the deviances has a large-sample chi-square distribution with degrees of freedom equal to the difference in the number of parameters estimated. Thus the difference in deviances can be tested against the chi-square distribution for significance, as done below.
+
+<<eval=TRUE>>=
+pchisq(947.99-641.48, 9)
+@
+Also, we can see from the summary that only \emph{Pclass, Sex, Age and SibSp(moderately)} has effect on the model with significance less than .05 level. To see how these variables affect, we can also do \emph{ANOVA} test, which tries adding the factors in the given order.
+<<eval=TRUE>>=
+anova(logit.m1, test="Chisq")
+@
+From the ANOVA results too, we can see that the deviance is highly reduced by \emph{Pclass, Sex} and weakly reduced by \emph{Age and SibSp} and with more or less no affect on deviance by other variables(Parch, Fare and Embarked).
+To improve our model further we can make use of \emph{engineered variables} from previous chapter, namely \emph{FamilySize and FamilyID2}
+
+<<eval=FALSE>>=
+logit.m2 <- glm(Survived ~ Pclass + Sex + Age + SibSp + 
+                  Parch + Fare + Embarked + 
+                  FamilySize + FamilyID2,
+                data = train.batch, 
+                family="binomial")
+@
+<<eval=TRUE>>=
+pchisq(365.39, 30)
+anova(logit.m2, test="Chisq")
+@
+
+The new model results in \emph{592.51} deviance, reducing \emph{365.39} points over null deviance of 957.90. The ANOVA test results show that the engineered variable \emph{FamilyID2} has a significant on deviance. Thus, we will be including it in our further modelling.
 
 \section{Decision Trees}
 Decision tree algorithms work by repeatedly splitting the dataset into subsets based on a particular attribute value. This process is recursively carried out until further splitting does not add any value to the predictions. This is a greedy algorithm, which means that decisions with the highest immediate value are given preference.
