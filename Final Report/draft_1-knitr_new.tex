@@ -90,7 +90,7 @@ MSc. Computer Science\\
 \end{flushleft}
 
 \begin{flushright} \large
-K. \textsc{Chaitanya Akundi}\\
+Krishna Chaitanya \textsc{Akundi}\\
 4239008 \\
 k.c.akundi@student.tudelft.nl\\
 MSc. Computer Science\\
@@ -357,14 +357,14 @@ We will run our first regression model with basic features provided within the d
 
 Logistic Regression uses the deviance test to estimate the goodness of the model. Its approach is based on estimating two models, it assumes that one excludes the hypothesized effects to be null, while to be included in 
 the other. For each model, a deviance statistic, equal to -2 ln L for that model, is computed, which in this case is
-\emph{947.99(Null model) and 641.48(estimated model)}. The deviance can be regarded as a measure of lack of fit between 
+\emph{951.76(Null model) and 634.98(estimated model)}. The deviance can be regarded as a measure of lack of fit between 
 model and data. In general, the larger the deviance, the poorer the fit to the data. In our first iteration with basic
-features we can see reduction of \emph{327.62} in deviance. The difference between the deviances has a large-sample chi-square distribution with degrees of freedom equal to the difference in the number of parameters estimated. Thus the difference in deviances can be tested against the chi-square distribution for significance, as done below.
+features we can see reduction of \emph{316.78} in deviance. The difference between the deviances has a large-sample chi-square distribution with degrees of freedom equal to the difference in the number of parameters estimated. Thus the difference in deviances can be tested against the chi-square distribution for significance, as done below.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{pchisq}\hlstd{(}\hlnum{946.03}\hlopt{-}\hlnum{618.41}\hlstd{,} \hlnum{9}\hlstd{)}
+\hlkwd{pchisq}\hlstd{(}\hlnum{951.76}\hlopt{-}\hlnum{634.98}\hlstd{,} \hlnum{8}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## [1] 1
@@ -413,48 +413,53 @@ To improve our model further we can make use of \emph{engineered variables} from
                   \hlstd{FamilyID2,}
                 \hlkwc{data} \hlstd{= train.batch,}
                 \hlkwc{family}\hlstd{=}\hlstr{"binomial"}\hlstd{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{pchisq}\hlstd{(}\hlnum{365.39}\hlstd{,} \hlnum{30}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## [1] 1
-\end{verbatim}
-\begin{alltt}
+\hlkwd{summary}\hlstd{(logit.m2)}
+\hlkwd{pchisq}\hlstd{(}\hlnum{406.25}\hlstd{,} \hlnum{36}\hlstd{)}
 \hlkwd{anova}\hlstd{(logit.m2,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
 \end{alltt}
-\begin{verbatim}
-## Analysis of Deviance Table
-## 
-## Model: binomial, link: logit
-## 
-## Response: Survived
-## 
-## Terms added sequentially (first to last)
-## 
-## 
-##           Df Deviance Resid. Df Resid. Dev Pr(>Chi)    
-## NULL                        712        952             
-## Pclass     1     80.1       711        872  < 2e-16 ***
-## Sex        1    198.9       710        673  < 2e-16 ***
-## Age        1     19.4       709        653  1.1e-05 ***
-## SibSp      1     12.8       708        641  0.00035 ***
-## Parch      1      0.1       707        640  0.79638    
-## Embarked   2      4.1       705        636  0.12871    
-## Title      8     45.5       697        591  3.0e-07 ***
-## FamilyID2 21     45.4       676        546  0.00153 ** 
-## ---
-## Signif. codes:  
-## 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
-The new model results in \emph{504.44} deviance, reducing \emph{442.59} points over null deviance of 946.03. The ANOVA test results show that the engineered variable \emph{Title and FamilyID2} have a significant effect on deviance. Thus, we will be including it in our further modelling.
+The new model results in \emph{545.51} deviance, reducing \emph{406.25} points over null deviance of 951.76. The ANOVA test results show that the engineered variable \emph{Title and FamilyID2} have a significant effect on deviance. Thus, we will be including it in our further modelling.
+
+We can now see how the new model performs on the test data.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{confusionMatrix}\hlstd{(logit.predict.val, test.batch}\hlopt{$}\hlstd{Survived)}
+\end{alltt}
+\begin{verbatim}
+## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction   0   1
+##          0 102  15
+##          1  10  51
+##                                       
+##                Accuracy : 0.86        
+##                  95% CI : (0.8, 0.907)
+##     No Information Rate : 0.629       
+##     P-Value [Acc > NIR] : 7.64e-12    
+##                                       
+##                   Kappa : 0.694       
+##  Mcnemar's Test P-Value : 0.424       
+##                                       
+##             Sensitivity : 0.911       
+##             Specificity : 0.773       
+##          Pos Pred Value : 0.872       
+##          Neg Pred Value : 0.836       
+##              Prevalence : 0.629       
+##          Detection Rate : 0.573       
+##    Detection Prevalence : 0.657       
+##       Balanced Accuracy : 0.842       
+##                                       
+##        'Positive' Class : 0           
+## 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+This model does well based on accuracy
 
 \section{Naive Bayes}
 Naive Bayes (NB) and Logistic Regression are both linear classifiers but they estimate parameters differently. Logistic Regression estimates the best model fit by minimizing the error or deviances, whereas Naive Bayes estimates `prior' probability from the training data and uses Bayes rule to predict new instances.
@@ -509,6 +514,7 @@ To see the accuracy of the NB model on test data set, we can look at confusion m
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+
 The NB model performs with 82.6\% accuracy on test batch but performs poorly and same as Logistic Regression on Kaggle test batch with 77.03\% accuracy.
 
 \section{Decision Trees}
@@ -516,14 +522,15 @@ Decision tree algorithms work by repeatedly splitting the dataset into subsets b
 
 We applied recursive partitioning on the Titanic dataset using the Decision Tree algorithm from R's \emph{rpart} package . For this, the dependent variables used were Pclass, Sex, Age, Fare, Embarked, Title and FamilyID2. 
 
-The algorithm was run multiple times with different parameters and control values, and then analyzed the results through a confusion matrix.
+The algorithm was run multiple times with different control parameters, and then analyzed the results through a confusion matrix. We used the same set of features over these runs - Pclass, Sex, Age, SibSp, Parch, Embarked, Title and FamilyID2.
 \subsection{}
+We first ran the rpart algorithm using a minsplit value of 2 and complexity parameter of 0.01.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{dt.1} \hlkwb{<-} \hlkwd{rpart}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{Fare} \hlopt{+} \hlstd{Embarked} \hlopt{+}
-    \hlstd{Title} \hlopt{+} \hlstd{FamilyID2,} \hlkwc{data} \hlstd{= train.batch,} \hlkwc{method} \hlstd{=} \hlstr{"class"}\hlstd{,}
-    \hlkwc{control} \hlstd{=} \hlkwd{rpart.control}\hlstd{(}\hlkwc{minsplit} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cp} \hlstd{=} \hlnum{0.001}\hlstd{))}
+\hlstd{dt.1} \hlkwb{<-} \hlkwd{rpart}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{SibSp} \hlopt{+} \hlstd{Parch} \hlopt{+}
+    \hlstd{Embarked} \hlopt{+} \hlstd{Title} \hlopt{+} \hlstd{FamilyID2,} \hlkwc{data} \hlstd{= train.batch,} \hlkwc{method} \hlstd{=} \hlstr{"class"}\hlstd{,}
+    \hlkwc{control} \hlstd{=} \hlkwd{rpart.control}\hlstd{(}\hlkwc{minsplit} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cp} \hlstd{=} \hlnum{0.01}\hlstd{))}
 \hlstd{dt.1.pred} \hlkwb{<-} \hlkwd{predict}\hlstd{(dt.1, test.batch,} \hlkwc{type} \hlstd{=} \hlstr{"class"}\hlstd{)}
 \hlkwd{confusionMatrix}\hlstd{(dt.1.pred, test.batch}\hlopt{$}\hlstd{Survived)}
 \end{alltt}
@@ -531,42 +538,47 @@ The algorithm was run multiple times with different parameters and control value
 ## Confusion Matrix and Statistics
 ## 
 ##           Reference
-## Prediction  0  1
-##          0 91 19
-##          1 21 47
-##                                         
-##                Accuracy : 0.775         
-##                  95% CI : (0.707, 0.834)
-##     No Information Rate : 0.629         
-##     P-Value [Acc > NIR] : 2.1e-05       
-##                                         
-##                   Kappa : 0.521         
-##  Mcnemar's Test P-Value : 0.874         
-##                                         
-##             Sensitivity : 0.812         
-##             Specificity : 0.712         
-##          Pos Pred Value : 0.827         
-##          Neg Pred Value : 0.691         
-##              Prevalence : 0.629         
-##          Detection Rate : 0.511         
-##    Detection Prevalence : 0.618         
-##       Balanced Accuracy : 0.762         
-##                                         
-##        'Positive' Class : 0             
+## Prediction   0   1
+##          0 107  28
+##          1   5  38
+##                                        
+##                Accuracy : 0.815        
+##                  95% CI : (0.75, 0.869)
+##     No Information Rate : 0.629        
+##     P-Value [Acc > NIR] : 5.78e-08     
+##                                        
+##                   Kappa : 0.572        
+##  Mcnemar's Test P-Value : 0.000128     
+##                                        
+##             Sensitivity : 0.955        
+##             Specificity : 0.576        
+##          Pos Pred Value : 0.793        
+##          Neg Pred Value : 0.884        
+##              Prevalence : 0.629        
+##          Detection Rate : 0.601        
+##    Detection Prevalence : 0.758        
+##       Balanced Accuracy : 0.766        
+##                                        
+##        'Positive' Class : 0            
 ## 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-We first ran the rpart algorithm using only the variables from the given data, i.e Pclass, Sex, Age, SibSp, Parch, Fare and Embarked, and no control parameters. 
-Here, the first parameter indicates the dependent variable being estimated with respect to the independent variables, the second indicates the training data set, the third indicates the method, which is set to 'class' as the variable 'Survived' has only two levels. The last argument specifies various parameters for the working of the recursive partitioning algorithm. In our case, we specify 'minsplit', which indicates the minimum number of observations required at a node to make a split. \emph{cp} is the complexity parameter. Any split that does not reduce complexity by a factor of \emph{cp} is not made.
+
+Here, the first parameter indicates the formula for the dependent variable being estimated with respect to the independent variables, the second indicates the training data set, the third indicates the method, which is set to 'class' as the variable 'Survived' has only two levels. The last argument specifies various parameters for the working of the recursive partitioning algorithm. In our case, we specify 'minsplit', which indicates the minimum number of observations required at a node to make a split. \emph{cp} is the complexity parameter. Any split that does not reduce complexity by a factor of \emph{cp} is not made. This resulted in a model which predicted the correct outcome 76.55\% of the time.
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{dt1}
+  \caption{Decision tree with minsplit=2 and complex parameter=.01} \label{dt1}
+\end{figure}
 
 \subsection{}
-In the second run, we added the engineered features Title and FamilyID2 to the estimation, while removing Age, SibSp and Parch which are already composed in Title and FamilyID2.
+In the second run, we added control parameters which specified \emph{minsplit} as 2 and \emph{cp} as 0. This allowed unbounded growth for the tree.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{dt.2} \hlkwb{<-} \hlkwd{rpart}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Fare} \hlopt{+} \hlstd{Embarked} \hlopt{+} \hlstd{Title} \hlopt{+} \hlstd{FamilyID2,}
-    \hlkwc{data} \hlstd{= train.batch,} \hlkwc{method} \hlstd{=} \hlstr{"class"}\hlstd{)}
+\hlstd{dt.2} \hlkwb{<-} \hlkwd{rpart}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{SibSp} \hlopt{+} \hlstd{Parch} \hlopt{+}
+    \hlstd{Embarked} \hlopt{+} \hlstd{Title} \hlopt{+} \hlstd{FamilyID2,} \hlkwc{data} \hlstd{= train.batch,} \hlkwc{method} \hlstd{=} \hlstr{"class"}\hlstd{,}
+    \hlkwc{control} \hlstd{=} \hlkwd{rpart.control}\hlstd{(}\hlkwc{minsplit} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cp} \hlstd{=} \hlnum{0}\hlstd{))}
 \hlstd{dt.2.pred} \hlkwb{<-} \hlkwd{predict}\hlstd{(dt.2, test.batch,} \hlkwc{type} \hlstd{=} \hlstr{"class"}\hlstd{)}
 \hlkwd{confusionMatrix}\hlstd{(dt.2.pred, test.batch}\hlopt{$}\hlstd{Survived)}
 \end{alltt}
@@ -574,42 +586,46 @@ In the second run, we added the engineered features Title and FamilyID2 to the e
 ## Confusion Matrix and Statistics
 ## 
 ##           Reference
-## Prediction   0   1
-##          0 105  20
-##          1   7  46
+## Prediction  0  1
+##          0 97 17
+##          1 15 49
 ##                                         
-##                Accuracy : 0.848         
-##                  95% CI : (0.787, 0.898)
+##                Accuracy : 0.82          
+##                  95% CI : (0.756, 0.874)
 ##     No Information Rate : 0.629         
-##     P-Value [Acc > NIR] : 9.11e-11      
+##     P-Value [Acc > NIR] : 2.17e-08      
 ##                                         
-##                   Kappa : 0.661         
-##  Mcnemar's Test P-Value : 0.0209        
+##                   Kappa : 0.612         
+##  Mcnemar's Test P-Value : 0.86          
 ##                                         
-##             Sensitivity : 0.938         
-##             Specificity : 0.697         
-##          Pos Pred Value : 0.840         
-##          Neg Pred Value : 0.868         
+##             Sensitivity : 0.866         
+##             Specificity : 0.742         
+##          Pos Pred Value : 0.851         
+##          Neg Pred Value : 0.766         
 ##              Prevalence : 0.629         
-##          Detection Rate : 0.590         
-##    Detection Prevalence : 0.702         
-##       Balanced Accuracy : 0.817         
+##          Detection Rate : 0.545         
+##    Detection Prevalence : 0.640         
+##       Balanced Accuracy : 0.804         
 ##                                         
 ##        'Positive' Class : 0             
 ## 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-This resulted in marginal gains in accuracy and sensitivity of the model, thus giving better results on unseen data.
+We ended up with a complex structure with large a number of branches. However, there were no significant gains in accuracy, sensitivity or precision. This model predicted outcomes for unseen data correctly in 71.29\% of cases. 
 
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{dt2}
+  \caption{Decision tree with minsplit=2 and complex parameter as 0} \label{dt2}
+\end{figure}
 \subsection{}
-In the third run, we added control parameters which specified \emph{minsplit} as 2 and \emph{cp} as 0. This allowed unbounded growth for the tree, and resulted in a complex structure with large a number of branches.
+In the last run, we specified \emph{minsplit} as 16 and \emph{cp} as 0.001.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{dt.3} \hlkwb{<-} \hlkwd{rpart}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{Fare} \hlopt{+} \hlstd{Embarked} \hlopt{+} \hlstd{Title} \hlopt{+}
-    \hlstd{FamilyID2,} \hlkwc{data} \hlstd{= train.batch,} \hlkwc{method} \hlstd{=} \hlstr{"class"}\hlstd{,} \hlkwc{control} \hlstd{=} \hlkwd{rpart.control}\hlstd{(}\hlkwc{minsplit} \hlstd{=} \hlnum{2}\hlstd{,}
-    \hlkwc{cp} \hlstd{=} \hlnum{0}\hlstd{))}
+\hlstd{dt.3} \hlkwb{<-} \hlkwd{rpart}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{SibSp} \hlopt{+} \hlstd{Parch} \hlopt{+}
+    \hlstd{Embarked} \hlopt{+} \hlstd{Title} \hlopt{+} \hlstd{FamilyID2,} \hlkwc{data} \hlstd{= train.batch,} \hlkwc{method} \hlstd{=} \hlstr{"class"}\hlstd{,}
+    \hlkwc{control} \hlstd{=} \hlkwd{rpart.control}\hlstd{(}\hlkwc{minsplit} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{cp} \hlstd{=} \hlnum{0.001}\hlstd{))}
 \hlstd{dt.3.pred} \hlkwb{<-} \hlkwd{predict}\hlstd{(dt.3, test.batch,} \hlkwc{type} \hlstd{=} \hlstr{"class"}\hlstd{)}
 \hlkwd{confusionMatrix}\hlstd{(dt.3.pred, test.batch}\hlopt{$}\hlstd{Survived)}
 \end{alltt}
@@ -617,47 +633,49 @@ In the third run, we added control parameters which specified \emph{minsplit} as
 ## Confusion Matrix and Statistics
 ## 
 ##           Reference
-## Prediction  0  1
-##          0 91 19
-##          1 21 47
+## Prediction   0   1
+##          0 103  22
+##          1   9  44
 ##                                         
-##                Accuracy : 0.775         
-##                  95% CI : (0.707, 0.834)
+##                Accuracy : 0.826         
+##                  95% CI : (0.762, 0.878)
 ##     No Information Rate : 0.629         
-##     P-Value [Acc > NIR] : 2.1e-05       
+##     P-Value [Acc > NIR] : 7.85e-09      
 ##                                         
-##                   Kappa : 0.521         
-##  Mcnemar's Test P-Value : 0.874         
+##                   Kappa : 0.611         
+##  Mcnemar's Test P-Value : 0.0311        
 ##                                         
-##             Sensitivity : 0.812         
-##             Specificity : 0.712         
-##          Pos Pred Value : 0.827         
-##          Neg Pred Value : 0.691         
+##             Sensitivity : 0.920         
+##             Specificity : 0.667         
+##          Pos Pred Value : 0.824         
+##          Neg Pred Value : 0.830         
 ##              Prevalence : 0.629         
-##          Detection Rate : 0.511         
-##    Detection Prevalence : 0.618         
-##       Balanced Accuracy : 0.762         
+##          Detection Rate : 0.579         
+##    Detection Prevalence : 0.702         
+##       Balanced Accuracy : 0.793         
 ##                                         
 ##        'Positive' Class : 0             
 ## 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-The results were very accurate on the training data. However, the model performed poorly with the test data. From this, we could conclude that the model is overfitting to a high degree. 
-
-
+The resulting model was better with respect to most metrics when it came to the training data, and did reasonably well with the test data, correctly predicting 77.09\% of the cases.
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{dt3}
+  \caption{Decision tree with minsplit=16 and complex parameter=.001} \label{dt3}
+\end{figure}
 \section{Support Vector Machines}
 
 Support Vector Machine (SVM) algorithms perform classification by representing the given data as points in space, with a clear plane of separation between the different classes to which the points belong. SVMs use the 'kernel trick' to work with high-dimensional data without ever having to map the points in such spaces. 
-In R, the \texttt{e1071} and \texttt{kernlab} packages offer methods for creating SVM models. We used the \texttt{kernlab} package to generate our SVM models with the \texttt{rbfdot} kernel, which uses a Gaussian Radial Basis Function. 
+In R, the \texttt{e1071} and \texttt{kernlab} packages offer methods for creating SVM models. We used the \texttt{kernlab} package to generate our SVM models.
 
 \subsection{}
 Initially, the algorithm was run using all the features that were already present in the given dataset. The model performs well on the training dataset, with an accuracy of 84.27\%. However, it did not do so well on the test set, being able to predict the correct outcome only around 62\% of the time. More statistics from the tests are shown below.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{svm.model.1} \hlkwb{<-} \hlkwd{ksvm}\hlstd{(Survived} \hlopt{~} \hlstd{Sex} \hlopt{+} \hlstd{Pclass} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{Fare} \hlopt{+} \hlstd{SibSp} \hlopt{+}
-    \hlstd{Parch} \hlopt{+} \hlstd{Embarked,} \hlkwc{data} \hlstd{= train.batch,} \hlkwc{kernel} \hlstd{=} \hlstr{"rbfdot"}\hlstd{,}
+\hlstd{svm.model.1} \hlkwb{<-} \hlkwd{ksvm}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{SibSp} \hlopt{+} \hlstd{Parch} \hlopt{+}
+    \hlstd{Embarked} \hlopt{+} \hlstd{Title} \hlopt{+} \hlstd{FamilyID2,} \hlkwc{data} \hlstd{= train.batch,} \hlkwc{kernel} \hlstd{=} \hlstr{"rbfdot"}\hlstd{,}
     \hlkwc{type} \hlstd{=} \hlstr{"C-svc"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
@@ -672,25 +690,25 @@ Initially, the algorithm was run using all the features that were already presen
 ## 
 ##           Reference
 ## Prediction   0   1
-##          0 106  28
-##          1   6  38
+##          0 106  25
+##          1   6  41
 ##                                         
-##                Accuracy : 0.809         
-##                  95% CI : (0.743, 0.864)
+##                Accuracy : 0.826         
+##                  95% CI : (0.762, 0.878)
 ##     No Information Rate : 0.629         
-##     P-Value [Acc > NIR] : 1.48e-07      
+##     P-Value [Acc > NIR] : 7.85e-09      
 ##                                         
-##                   Kappa : 0.561         
-##  Mcnemar's Test P-Value : 0.000316      
+##                   Kappa : 0.603         
+##  Mcnemar's Test P-Value : 0.00123       
 ##                                         
 ##             Sensitivity : 0.946         
-##             Specificity : 0.576         
-##          Pos Pred Value : 0.791         
-##          Neg Pred Value : 0.864         
+##             Specificity : 0.621         
+##          Pos Pred Value : 0.809         
+##          Neg Pred Value : 0.872         
 ##              Prevalence : 0.629         
 ##          Detection Rate : 0.596         
-##    Detection Prevalence : 0.753         
-##       Balanced Accuracy : 0.761         
+##    Detection Prevalence : 0.736         
+##       Balanced Accuracy : 0.784         
 ##                                         
 ##        'Positive' Class : 0             
 ## 
@@ -699,6 +717,7 @@ Initially, the algorithm was run using all the features that were already presen
 \end{knitrout}
 Here, the type 'C-svc' indicates that the algorithm must run in the classification mode.
 \subsection{}
+The algorithm was then run using a subset of the available features, containing Pclass, Sex and Embarked. 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -742,9 +761,10 @@ Here, the type 'C-svc' indicates that the algorithm must run in the classificati
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-The algorithm was then run using a subset of the available features, containing Pclass, Sex and Embarked. This model proved to be slightly better performing with the training data, with an accuracy of 84.83\%, while exhibiting higher sensitivity and lower specificity. The model performed significantly better on unseen data, correctly predicting outcomes 77.99\% of the time.
+This model proved to be slightly better performing with the training data, with an accuracy of 84.83\%, while exhibiting higher sensitivity and lower specificity. The model performed significantly better on unseen data, correctly predicting outcomes 77.99\% of the time.
 
 \subsection{}
+In the next run, the engineered features Title and FamilyID2 were used along with Pclass and Sex to create the model.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -789,15 +809,15 @@ The algorithm was then run using a subset of the available features, containing 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-In the next run, the engineered features Title and FamilyID2 were used along with Pclass and Sex to create the model. This model showed slightly better performance compared to the previous one, both with the training data and the test set from Kaggle.
+This model showed slightly better performance compared to the previous one, both with the training data and the test set from Kaggle.
 \subsection{}
-In the final run, we constructed the SVM model using all the available features, and the features that were engineered. The performance of this model on the training set was comparable to that of the other models. On the unseen test data, the model performed poorly, predicting the right outcome only 61.2\% of the time.  
+In the final run, we constructed the SVM model using the feature set used for the other models. The performance of this model on the training set was comparable to that of the other models. On the unseen test data, the model performed well also, predicting the right outcome 78.46\% of the time.  
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{svm.model.4} \hlkwb{<-} \hlkwd{ksvm}\hlstd{(Survived} \hlopt{~} \hlstd{Sex} \hlopt{+} \hlstd{Pclass} \hlopt{+} \hlstd{Embarked} \hlopt{+} \hlstd{Fare} \hlopt{+}
-    \hlstd{Age} \hlopt{+} \hlstd{FamilyID2} \hlopt{+} \hlstd{SibSp} \hlopt{+} \hlstd{Parch} \hlopt{+} \hlstd{Title,} \hlkwc{data} \hlstd{= train.batch,}
-    \hlkwc{kernel} \hlstd{=} \hlstr{"rbfdot"}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"C-svc"}\hlstd{)}
+\hlstd{svm.model.4} \hlkwb{<-} \hlkwd{ksvm}\hlstd{(Survived} \hlopt{~} \hlstd{Pclass} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{SibSp} \hlopt{+} \hlstd{Parch} \hlopt{+}
+    \hlstd{Embarked} \hlopt{+} \hlstd{Title} \hlopt{+} \hlstd{FamilyID2,} \hlkwc{data} \hlstd{= train.batch,} \hlkwc{kernel} \hlstd{=} \hlstr{"rbfdot"}\hlstd{,}
+    \hlkwc{type} \hlstd{=} \hlstr{"C-svc"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## Using automatic sigma estimation (sigest) for RBF or laplace kernel
@@ -854,7 +874,8 @@ Before modelling we need to decide on few input variables needed for the algorit
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-Here \texttt{ntreeTry} is the number of trees used at the tuning step, \texttt{stepFactor} value by which mtry is inflated at every iteration. This function gives the value of \texttt{mtry} as \emph{3}. We now perform random forest algorithm, first with \texttt{ntree} set to 1000.
+Here \texttt{ntreeTry} is the number of trees used at the tuning step, \texttt{stepFactor} value by which mtry is inflated at every iteration. This function gives the value of \texttt{mtry} as \emph{3}. 
+We now perform random forest algorithm, first with \texttt{ntree} set to 1000.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -983,41 +1004,65 @@ With \texttt{ntree} set to 5000
 From the statistics and confusion matrix, we can see that the accuracy of the model increases by approximately 1\% when number of trees variable is increased from 1000 to 2000 but does not increase further if we set \texttt{ntree} to 5000, indicating the model has acheived its optimum(low bias and low variance) when there are 2000 trees in forest.
 
 \chapter{Model Evaluation}
-For evaluation of models made in previous chapter we will use R's package \texttt{ROCR}, its major advantage is it eases the task of comparison by visualizing classifier performance.
+For evaluation of models made in previous chapter we will use R's package \texttt{ROCR}, its major advantage is, it eases the task of comparison by visualizing classifier performance.
 An ROC curve is a way of determining the performance of classifiers. It uses statistics such as True and False Positive Rates to evaluate the performance. The statistics are calculated using a confusion matrix. 
 A confusion matrix is a tabulation of expected and observed values, along with the associated statistics. It is of the form shown below.
 
-\begin{table}
+\begin{table}[h]
+  \begin{center}
     \begin{tabular}{|l|l|l|}
     \hline
-    ~          & Actual Value  & ~  \\ \hline
-    Prediction & 0             & 1  \\ \hline
-    0          & A           & B \\
-    1          & C             & D \\ \hline
+    ~          & Reference     & ~  \\ \hline
+    Predicted  & Event         & No Event  \\ \hline
+    Event      & A             & B \\
+    No Event   & C             & D \\ \hline
+    
     \end{tabular}
     \caption{Confusion Matrix}
-    Various statistics can be calculated from the confusion matrix.
-    \begin{itemize}
-      \item{Accuracy: (A+D)/(A+B+C+D)}
-      \item{95\% Confidence Interval: A measure of reliability, calculated using an exact binomial test}
-      \item{No Information Rate: The largest class percentage in the data}
-      \item{P-value: The probability of obtaining a test statistic result at least as extreme as the one that was actually observed, assuming that the null hypothesis is true}
-      \item{True Positive Rate: D/(A+B+C+D)}
-      \item{False Positive Rate: C/(A+B+C+D) }
-      \item{Sensitivity: A/(A+C)}
-      \item{Specificity: D/(B+D)}
-    \end{itemize}
-\end{table}
+  \end{center}
+\end{table}  
+
+Various statistics can be calculated from the confusion matrix.
+\begin{itemize}
+  \item{Accuracy: (A+D)/(A+B+C+D)}
+  \item{95\% Confidence Interval: A measure of reliability, calculated using an exact binomial test}
+  \item{No Information Rate: The largest class percentage in the data}
+  \item{P-value: The probability of obtaining a test statistic result at least as extreme as the one that was actually observed, assuming that the null hypothesis is true}
+  \item{True Positive Rate: D/(A+B+C+D)}
+  \item{False Positive Rate: C/(A+B+C+D) }
+  \item{Sensitivity: A/(A+C)}
+  \item{Specificity: D/(B+D)}
+\end{itemize}
+
 A basic ROC curve is as shown in Fig. \ref{roc} It shows the performance of five classifiers A, B, C, D and E. A classifier plotted at the point (0,0) in this graph never  gives a positive classification, hence committing no false positive errors, but not gaining any true positives as well. On the other hand, the point (1,1) represents the opposite kind of strategy. A classifier plotted at (0,1) has perfect classification. The performance of classifiers can be measured relative to these points. A classifier is better than another if it either has higher true positive rate, lower false positive rate, or both. In this case, D is the best performing model.   
 \begin{figure}[h]
-  \includegraphics[width=\textwidth]{roc-curve}
-  \caption{ROC curves comparing classification performance.} \label{roc}
+  \begin{center}
+    \includegraphics[scale=0.3]{roc-curve}
+    \caption{ROC curve} \label{roc}
+  \end{center}
 \end{figure}
-\subsection{Evaluation}
+
+\subsection{Evaluation - Metrics}
+The following table gives the metrics of the classifiers used in the previous chapter. We chose the optimum model for each type of classifier. The listed measures should be high for a good classifier, as seen from the table Logistic Regression performs the best for each metric. Since in our problem predicting the survival rate is important, the metrics with Negatives are more valuable, namely Specificity. Based on this we can say Random Forest and Decision Trees  perform in the same way. Between Naive Bayes and SVM, Naive Bayes is better since it has higher Specificity which means it predicts negatives better. Similarly between SVM and Decision Trees, latter performs better.
+\begin{table}[h]
+    \begin{tabular}{llllll}
+    Measure              & Logistic Regression & Naive Bayes & SVM  & Decision Trees & Random Forests \\ \hline
+    Precision            & 0.87                & 0.85        & 0.81 & 0.82           & 0.83           \\
+    Recall / Sensitivity & 0.91                & 0.87        & 0.95 & 0.92           & 0.92           \\
+    Specificity          & 0.77                & 0.74        & 0.62 & 0.67           & 0.68           \\
+    Accuracy             & 0.86                & 0.82        & 0.82 & 0.83           & 0.83           \\
+    \end{tabular}
+    \caption{Performance Metrics of Models}
+\end{table}
+
+\subsection{Evaluation - ROC Curve}
 
 \begin{figure}[h]
-  \includegraphics[width=\textwidth]{rocr}
-  \caption{ROC curves comparing classification performance.} \label{rocr}
+  \begin{center}
+  \includegraphics[scale=0.5]{rocr}
+  \caption{ROC curves for models and their Area under the Curve (auc)} \label{rocr}
+  \end{center}
 \end{figure}
-From the obtained curves and the theory of ROC graphs, it can be observed that the classifier based on logistic regression has performed the best, while the SVM-based classifier has the worst performance for the given dataset. The accuracy of the classifier can be determined by computing the area under it's ROC curve. The area under the curve(auc) was calculated for all five classifiers. Logistic regression was the most accurate with an auc value of 0.909, followed by the Random Forest classifier at 0.895 and Naive Bayes-based classifier at 0.884. The SVM model performed the worst, with an auc of 0.786. 
+
+The obtained curves in Figure\ref{rocr} corroborate the evidence from the table. The accuracy of the classifier can be determined by computing the area under it's ROC curve. The area under the curve(\emph{auc}) was calculated for all five classifiers and the results are included in \ref{rocr}. It can be observed that the classifier based on logistic regression has performed the best, while the SVM-based classifier has the worst performance for the given dataset in terms of \emph{auc} as well.
 \end{document}

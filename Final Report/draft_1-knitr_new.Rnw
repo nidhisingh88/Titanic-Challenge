@@ -59,7 +59,7 @@ MSc. Computer Science\\
 \end{flushleft}
 
 \begin{flushright} \large
-K. \textsc{Chaitanya Akundi}\\
+Krishna Chaitanya \textsc{Akundi}\\
 4239008 \\
 k.c.akundi@student.tudelft.nl\\
 MSc. Computer Science\\
@@ -296,12 +296,12 @@ summary(logit.m1)
 
 Logistic Regression uses the deviance test to estimate the goodness of the model. Its approach is based on estimating two models, it assumes that one excludes the hypothesized effects to be null, while to be included in 
 the other. For each model, a deviance statistic, equal to -2 ln L for that model, is computed, which in this case is
-\emph{947.99(Null model) and 641.48(estimated model)}. The deviance can be regarded as a measure of lack of fit between 
+\emph{951.76(Null model) and 634.98(estimated model)}. The deviance can be regarded as a measure of lack of fit between 
 model and data. In general, the larger the deviance, the poorer the fit to the data. In our first iteration with basic
-features we can see reduction of \emph{327.62} in deviance. The difference between the deviances has a large-sample chi-square distribution with degrees of freedom equal to the difference in the number of parameters estimated. Thus the difference in deviances can be tested against the chi-square distribution for significance, as done below.
+features we can see reduction of \emph{316.78} in deviance. The difference between the deviances has a large-sample chi-square distribution with degrees of freedom equal to the difference in the number of parameters estimated. Thus the difference in deviances can be tested against the chi-square distribution for significance, as done below.
 
 <<eval=TRUE>>=
-pchisq(946.03-618.41, 9)
+pchisq(951.76-634.98, 8)
 @
 Also, we can see from the summary that only \emph{Pclass, Sex, Age and SibSp(moderately)} has effect on the model with significance less than .05 level. To see how these variables affect, we can also do \emph{ANOVA} test, which tries adding the factors in the given order.
 <<eval=TRUE>>=
@@ -316,13 +316,22 @@ logit.m2 <- glm(Survived ~ Pclass + Sex + Age + SibSp + Parch +
                   FamilyID2,
                 data = train.batch, 
                 family="binomial")
-@
-<<eval=TRUE>>=
-pchisq(365.39, 30)
+summary(logit.m2)
+pchisq(406.25, 36)
 anova(logit.m2, test="Chisq")
 @
 
-The new model results in \emph{504.44} deviance, reducing \emph{442.59} points over null deviance of 946.03. The ANOVA test results show that the engineered variable \emph{Title and FamilyID2} have a significant effect on deviance. Thus, we will be including it in our further modelling.
+The new model results in \emph{545.51} deviance, reducing \emph{406.25} points over null deviance of 951.76. The ANOVA test results show that the engineered variable \emph{Title and FamilyID2} have a significant effect on deviance. Thus, we will be including it in our further modelling.
+
+We can now see how the new model performs on the test data.
+<<eval=TRUE,echo=FALSE>>=
+logit.predict <- predict(logit.m2, test.batch,type="response")
+logit.predict.val <- ifelse(logit.predict>0.5,1,0)
+@
+<<eval=TRUE>>=
+confusionMatrix(logit.predict.val, test.batch$Survived)
+@
+This model does well based on accuracy
 
 \section{Naive Bayes}
 Naive Bayes (NB) and Logistic Regression are both linear classifiers but they estimate parameters differently. Logistic Regression estimates the best model fit by minimizing the error or deviances, whereas Naive Bayes estimates `prior' probability from the training data and uses Bayes rule to predict new instances.
@@ -337,11 +346,7 @@ nb.predict <- predict(nb.classifier, test.batch)
 @
 To see the accuracy of the NB model on test data set, we can look at confusion matrix statistics
 <<eval=TRUE,echo=TRUE>>=
-nb.cm <- confusionMatrix(nb.predict,test.batch$Survived)
-@
-
-<<>>=
-nb.metrics <- data.frame()
+confusionMatrix(nb.predict,test.batch$Survived)
 @
 
 The NB model performs with 82.6\% accuracy on test batch but performs poorly and same as Logistic Regression on Kaggle test batch with 77.03\% accuracy.
@@ -351,53 +356,68 @@ Decision tree algorithms work by repeatedly splitting the dataset into subsets b
 
 We applied recursive partitioning on the Titanic dataset using the Decision Tree algorithm from R's \emph{rpart} package . For this, the dependent variables used were Pclass, Sex, Age, Fare, Embarked, Title and FamilyID2. 
 
-The algorithm was run multiple times with different parameters and control values, and then analyzed the results through a confusion matrix.
+The algorithm was run multiple times with different control parameters, and then analyzed the results through a confusion matrix. We used the same set of features over these runs - Pclass, Sex, Age, SibSp, Parch, Embarked, Title and FamilyID2.
 \subsection{}
+We first ran the rpart algorithm using a minsplit value of 2 and complexity parameter of 0.01.
 <<eval=T,echo=T,tidy=TRUE>>=
-dt.1 <- rpart(Survived ~ Pclass + Sex + Age + Fare + 
-                Embarked + Title + FamilyID2,
+dt.1 <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + 
+                  Embarked + Title +
+                  FamilyID2,
               data = train.batch, method = "class", 
               control = rpart.control(minsplit = 2, 
-                                      cp = 0.001))
+                                      cp = 0.01))
 dt.1.pred <- predict(dt.1, test.batch, type='class')
 confusionMatrix(dt.1.pred,test.batch$Survived)
 @
-We first ran the rpart algorithm using only the variables from the given data, i.e Pclass, Sex, Age, SibSp, Parch, Fare and Embarked, and no control parameters. 
-Here, the first parameter indicates the dependent variable being estimated with respect to the independent variables, the second indicates the training data set, the third indicates the method, which is set to 'class' as the variable 'Survived' has only two levels. The last argument specifies various parameters for the working of the recursive partitioning algorithm. In our case, we specify 'minsplit', which indicates the minimum number of observations required at a node to make a split. \emph{cp} is the complexity parameter. Any split that does not reduce complexity by a factor of \emph{cp} is not made.
+
+Here, the first parameter indicates the formula for the dependent variable being estimated with respect to the independent variables, the second indicates the training data set, the third indicates the method, which is set to 'class' as the variable 'Survived' has only two levels. The last argument specifies various parameters for the working of the recursive partitioning algorithm. In our case, we specify 'minsplit', which indicates the minimum number of observations required at a node to make a split. \emph{cp} is the complexity parameter. Any split that does not reduce complexity by a factor of \emph{cp} is not made. This resulted in a model which predicted the correct outcome 76.55\% of the time.
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{dt1}
+  \caption{Decision tree with minsplit=2 and complex parameter=.01} \label{dt1}
+\end{figure}
 
 \subsection{}
-In the second run, we added the engineered features Title and FamilyID2 to the estimation, while removing Age, SibSp and Parch which are already composed in Title and FamilyID2.
+In the second run, we added control parameters which specified \emph{minsplit} as 2 and \emph{cp} as 0. This allowed unbounded growth for the tree.
 <<eval=T,echo=T,tidy=TRUE>>=
-dt.2 <- rpart(Survived ~ Pclass + Fare + Embarked + 
-             Title + FamilyID2, data=train.batch,
-             method="class")
+dt.2 <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + 
+                  Embarked + Title +
+                  FamilyID2, data=train.batch,
+             method="class",control=rpart.control(minsplit=2,cp=0.0))
 dt.2.pred <- predict(dt.2, test.batch, type='class')
 confusionMatrix(dt.2.pred,test.batch$Survived)
 @
-This resulted in marginal gains in accuracy and sensitivity of the model, thus giving better results on unseen data.
+We ended up with a complex structure with large a number of branches. However, there were no significant gains in accuracy, sensitivity or precision. This model predicted outcomes for unseen data correctly in 71.29\% of cases. 
 
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{dt2}
+  \caption{Decision tree with minsplit=2 and complex parameter as 0} \label{dt2}
+\end{figure}
 \subsection{}
-In the third run, we added control parameters which specified \emph{minsplit} as 2 and \emph{cp} as 0. This allowed unbounded growth for the tree, and resulted in a complex structure with large a number of branches.
+In the last run, we specified \emph{minsplit} as 16 and \emph{cp} as 0.001.
 <<eval=T,echo=T,tidy=TRUE>>=
-dt.3 <- rpart(Survived ~ Pclass  + Age  + Fare + Embarked 
-             + Title  + FamilyID2, data=train.batch,
-             method="class",control=rpart.control(minsplit=2,cp=0.0))
+dt.3 <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + 
+                  Embarked + Title +
+                  FamilyID2, data=train.batch,
+             method="class",control=rpart.control(minsplit=16,cp=0.001))
 dt.3.pred <- predict(dt.3, test.batch, type='class')
 confusionMatrix(dt.3.pred,test.batch$Survived)
 @
-The results were very accurate on the training data. However, the model performed poorly with the test data. From this, we could conclude that the model is overfitting to a high degree. 
-
-
+The resulting model was better with respect to most metrics when it came to the training data, and did reasonably well with the test data, correctly predicting 77.09\% of the cases.
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{dt3}
+  \caption{Decision tree with minsplit=16 and complex parameter=.001} \label{dt3}
+\end{figure}
 \section{Support Vector Machines}
 
 Support Vector Machine (SVM) algorithms perform classification by representing the given data as points in space, with a clear plane of separation between the different classes to which the points belong. SVMs use the 'kernel trick' to work with high-dimensional data without ever having to map the points in such spaces. 
-In R, the \texttt{e1071} and \texttt{kernlab} packages offer methods for creating SVM models. We used the \texttt{kernlab} package to generate our SVM models with the \texttt{rbfdot} kernel, which uses a Gaussian Radial Basis Function. 
+In R, the \texttt{e1071} and \texttt{kernlab} packages offer methods for creating SVM models. We used the \texttt{kernlab} package to generate our SVM models.
 
 \subsection{}
 Initially, the algorithm was run using all the features that were already present in the given dataset. The model performs well on the training dataset, with an accuracy of 84.27\%. However, it did not do so well on the test set, being able to predict the correct outcome only around 62\% of the time. More statistics from the tests are shown below.
 <<eval=T,echo=T,tidy=TRUE>>=
-svm.model.1 <- ksvm(Survived ~ Sex + Pclass + Age + Fare +
-                      SibSp + Parch + Embarked, 
+svm.model.1 <- ksvm(Survived ~ Pclass + Sex + Age + SibSp + Parch + 
+               Embarked + Title +
+               FamilyID2, 
                     data = train.batch, kernel="rbfdot",
                     type="C-svc")
 svm.pred.1 <- predict(svm.model.1, type="response", test.batch)
@@ -405,6 +425,7 @@ confusionMatrix(svm.pred.1, test.batch$Survived)
 @
 Here, the type 'C-svc' indicates that the algorithm must run in the classification mode.
 \subsection{}
+The algorithm was then run using a subset of the available features, containing Pclass, Sex and Embarked. 
 <<eval=T,echo=T,tidy=TRUE>>=
 svm.model.2 <- ksvm(Survived ~ Sex + Pclass + Embarked, 
                     data = train.batch, kernel="rbfdot",
@@ -412,9 +433,10 @@ svm.model.2 <- ksvm(Survived ~ Sex + Pclass + Embarked,
 svm.pred.2 <- predict(svm.model.2, type="response", test.batch)
 confusionMatrix(svm.pred.2, test.batch$Survived)
 @
-The algorithm was then run using a subset of the available features, containing Pclass, Sex and Embarked. This model proved to be slightly better performing with the training data, with an accuracy of 84.83\%, while exhibiting higher sensitivity and lower specificity. The model performed significantly better on unseen data, correctly predicting outcomes 77.99\% of the time.
+This model proved to be slightly better performing with the training data, with an accuracy of 84.83\%, while exhibiting higher sensitivity and lower specificity. The model performed significantly better on unseen data, correctly predicting outcomes 77.99\% of the time.
 
 \subsection{}
+In the next run, the engineered features Title and FamilyID2 were used along with Pclass and Sex to create the model.
 <<eval=T,echo=T,tidy=TRUE>>=
 svm.model.3 <- ksvm(Survived ~ Sex + Pclass + Embarked + 
                       Title + FamilyID2, 
@@ -424,12 +446,13 @@ svm.model.3 <- ksvm(Survived ~ Sex + Pclass + Embarked +
 svm.pred.3 <- predict(svm.model.3, type="response", test.batch)
 confusionMatrix(svm.pred.3, test.batch$Survived)
 @
-In the next run, the engineered features Title and FamilyID2 were used along with Pclass and Sex to create the model. This model showed slightly better performance compared to the previous one, both with the training data and the test set from Kaggle.
+This model showed slightly better performance compared to the previous one, both with the training data and the test set from Kaggle.
 \subsection{}
-In the final run, we constructed the SVM model using all the available features, and the features that were engineered. The performance of this model on the training set was comparable to that of the other models. On the unseen test data, the model performed poorly, predicting the right outcome only 61.2\% of the time.  
+In the final run, we constructed the SVM model using the feature set used for the other models. The performance of this model on the training set was comparable to that of the other models. On the unseen test data, the model performed well also, predicting the right outcome 78.46\% of the time.  
 <<eval=T,echo=T,tidy=TRUE>>=
-svm.model.4 <- ksvm(Survived ~ Sex + Pclass + Embarked + Fare +
-                      Age + FamilyID2 + SibSp + Parch + Title,
+svm.model.4 <- ksvm(Survived ~ Pclass + Sex + Age + SibSp + Parch + 
+               Embarked + Title +
+               FamilyID2,
                     data = train.batch, kernel="rbfdot",
                     type="C-svc")
 svm.pred.4 <- predict(svm.model.4, type="response", test.batch)
@@ -449,7 +472,8 @@ bestmtry <- tuneRF(data.frame(train.batch$Pclass,train.batch$Sex,
                    stepFactor=1.5,improve=0.01, trace=TRUE, plot=TRUE, 
                    dobest=FALSE)
 @
-Here \texttt{ntreeTry} is the number of trees used at the tuning step, \texttt{stepFactor} value by which mtry is inflated at every iteration. This function gives the value of \texttt{mtry} as \emph{3}. We now perform random forest algorithm, first with \texttt{ntree} set to 1000.
+Here \texttt{ntreeTry} is the number of trees used at the tuning step, \texttt{stepFactor} value by which mtry is inflated at every iteration. This function gives the value of \texttt{mtry} as \emph{3}. 
+We now perform random forest algorithm, first with \texttt{ntree} set to 1000.
 <<>>=
 rf.m1 <-randomForest(as.factor(Survived) ~ Pclass + Sex + Age + SibSp + 
                        Parch + Fare+ FamilySize +
@@ -482,41 +506,65 @@ confusionMatrix(rf.predict.3, test.batch$Survived)
 From the statistics and confusion matrix, we can see that the accuracy of the model increases by approximately 1\% when number of trees variable is increased from 1000 to 2000 but does not increase further if we set \texttt{ntree} to 5000, indicating the model has acheived its optimum(low bias and low variance) when there are 2000 trees in forest.
 
 \chapter{Model Evaluation}
-For evaluation of models made in previous chapter we will use R's package \texttt{ROCR}, its major advantage is it eases the task of comparison by visualizing classifier performance.
+For evaluation of models made in previous chapter we will use R's package \texttt{ROCR}, its major advantage is, it eases the task of comparison by visualizing classifier performance.
 An ROC curve is a way of determining the performance of classifiers. It uses statistics such as True and False Positive Rates to evaluate the performance. The statistics are calculated using a confusion matrix. 
 A confusion matrix is a tabulation of expected and observed values, along with the associated statistics. It is of the form shown below.
 
-\begin{table}
+\begin{table}[h]
+  \begin{center}
     \begin{tabular}{|l|l|l|}
     \hline
-    ~          & Actual Value  & ~  \\ \hline
-    Prediction & 0             & 1  \\ \hline
-    0          & A           & B \\
-    1          & C             & D \\ \hline
+    ~          & Reference     & ~  \\ \hline
+    Predicted  & Event         & No Event  \\ \hline
+    Event      & A             & B \\
+    No Event   & C             & D \\ \hline
+    
     \end{tabular}
     \caption{Confusion Matrix}
-    Various statistics can be calculated from the confusion matrix.
-    \begin{itemize}
-      \item{Accuracy: (A+D)/(A+B+C+D)}
-      \item{95\% Confidence Interval: A measure of reliability, calculated using an exact binomial test}
-      \item{No Information Rate: The largest class percentage in the data}
-      \item{P-value: The probability of obtaining a test statistic result at least as extreme as the one that was actually observed, assuming that the null hypothesis is true}
-      \item{True Positive Rate: D/(A+B+C+D)}
-      \item{False Positive Rate: C/(A+B+C+D) }
-      \item{Sensitivity: A/(A+C)}
-      \item{Specificity: D/(B+D)}
-    \end{itemize}
-\end{table}
+  \end{center}
+\end{table}  
+
+Various statistics can be calculated from the confusion matrix.
+\begin{itemize}
+  \item{Accuracy: (A+D)/(A+B+C+D)}
+  \item{95\% Confidence Interval: A measure of reliability, calculated using an exact binomial test}
+  \item{No Information Rate: The largest class percentage in the data}
+  \item{P-value: The probability of obtaining a test statistic result at least as extreme as the one that was actually observed, assuming that the null hypothesis is true}
+  \item{True Positive Rate: D/(A+B+C+D)}
+  \item{False Positive Rate: C/(A+B+C+D) }
+  \item{Sensitivity: A/(A+C)}
+  \item{Specificity: D/(B+D)}
+\end{itemize}
+
 A basic ROC curve is as shown in Fig. \ref{roc} It shows the performance of five classifiers A, B, C, D and E. A classifier plotted at the point (0,0) in this graph never  gives a positive classification, hence committing no false positive errors, but not gaining any true positives as well. On the other hand, the point (1,1) represents the opposite kind of strategy. A classifier plotted at (0,1) has perfect classification. The performance of classifiers can be measured relative to these points. A classifier is better than another if it either has higher true positive rate, lower false positive rate, or both. In this case, D is the best performing model.   
 \begin{figure}[h]
-  \includegraphics[width=\textwidth]{roc-curve}
-  \caption{ROC curves comparing classification performance.} \label{roc}
+  \begin{center}
+    \includegraphics[scale=0.3]{roc-curve}
+    \caption{ROC curve} \label{roc}
+  \end{center}
 \end{figure}
-\subsection{Evaluation}
+
+\subsection{Evaluation - Metrics}
+The following table gives the metrics of the classifiers used in the previous chapter. We chose the optimum model for each type of classifier. The listed measures should be high for a good classifier, as seen from the table Logistic Regression performs the best for each metric. Since in our problem predicting the survival rate is important, the metrics with Negatives are more valuable, namely Specificity. Based on this we can say Random Forest and Decision Trees  perform in the same way. Between Naive Bayes and SVM, Naive Bayes is better since it has higher Specificity which means it predicts negatives better. Similarly between SVM and Decision Trees, latter performs better.
+\begin{table}[h]
+    \begin{tabular}{llllll}
+    Measure              & Logistic Regression & Naive Bayes & SVM  & Decision Trees & Random Forests \\ \hline
+    Precision            & 0.87                & 0.85        & 0.81 & 0.82           & 0.83           \\
+    Recall / Sensitivity & 0.91                & 0.87        & 0.95 & 0.92           & 0.92           \\
+    Specificity          & 0.77                & 0.74        & 0.62 & 0.67           & 0.68           \\
+    Accuracy             & 0.86                & 0.82        & 0.82 & 0.83           & 0.83           \\
+    \end{tabular}
+    \caption{Performance Metrics of Models}
+\end{table}
+
+\subsection{Evaluation - ROC Curve}
 
 \begin{figure}[h]
-  \includegraphics[width=\textwidth]{rocr}
-  \caption{ROC curves comparing classification performance.} \label{rocr}
+  \begin{center}
+  \includegraphics[scale=0.5]{rocr}
+  \caption{ROC curves for models and their Area under the Curve (auc)} \label{rocr}
+  \end{center}
 \end{figure}
-From the obtained curves and the theory of ROC graphs, it can be observed that the classifier based on logistic regression has performed the best, while the SVM-based classifier has the worst performance for the given dataset. The accuracy of the classifier can be determined by computing the area under it's ROC curve. The area under the curve(auc) was calculated for all five classifiers. Logistic regression was the most accurate with an auc value of 0.909, followed by the Random Forest classifier at 0.895 and Naive Bayes-based classifier at 0.884. The SVM model performed the worst, with an auc of 0.786. 
+
+The obtained curves in Figure\ref{rocr} corroborate the evidence from the table. The accuracy of the classifier can be determined by computing the area under it's ROC curve. The area under the curve(\emph{auc}) was calculated for all five classifiers and the results are included in \ref{rocr}. It can be observed that the classifier based on logistic regression has performed the best, while the SVM-based classifier has the worst performance for the given dataset in terms of \emph{auc} as well.
 \end{document}

@@ -16,13 +16,16 @@ combi <- rbind(train, test)
 # combi$Age[is.na(combi$Age)] <- mean(combi$Age)
 combi$Age[is.na(combi$Age)] <- mean(combi$Age[!is.na(combi$Age)])
 
+# Fill missing embarked values
+combi$Embarked[which(combi$Embarked == '')] <- 'S'
+
 #Classify by title
 combi$Name <- as.character(combi$Name)
 combi$Title <- sapply(combi$Name, FUN=function(x) {strsplit(x, split='[,.]')[[1]][2]})
 combi$Title <- sub(' ', '', combi$Title)
 # Combine small title groups
-combi$Title[combi$Title %in% c('Mme', 'Mlle')] <- 'Mlle'
-combi$Title[combi$Title %in% c('Capt', 'Don', 'Major', 'Sir')] <- 'Sir'
+combi$Title[combi$Title %in% c('Mme', 'Ms','Mlle')] <- 'Mlle'
+combi$Title[combi$Title %in% c('Capt', 'Col','Don', 'Major', 'Sir')] <- 'Sir'
 combi$Title[combi$Title %in% c('Dona', 'Lady', 'the Countess', 'Jonkheer')] <- 'Lady'
 # Convert to a factor
 combi$Title <- factor(combi$Title)
